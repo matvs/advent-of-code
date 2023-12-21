@@ -20,7 +20,9 @@ if __name__ == '__main__':
         
 
         def isValid(tokens):
-            currentGroupIndex = 0
+
+            groups = []
+
             currentSymbol = ''
 
             for char in tokens[0]:
@@ -33,34 +35,33 @@ if __name__ == '__main__':
 
                     if len(currentSymbol) > 0:
 
-                        if (currentGroupIndex >= len(tokens[1]) or len(currentSymbol) != tokens[1][currentGroupIndex]):
-
-                            return False
-
-                        else:
-
-                            currentGroupIndex += 1
+                        groups.append(currentSymbol)
 
                     currentSymbol = ''
 
-                
-
             if len(currentSymbol) > 0:
 
-                if currentGroupIndex >= len(tokens[1]):
+                groups.append(currentSymbol)
 
-                    return False
+            
 
-            if currentGroupIndex == len(tokens[1]) - 1:
-
-                return len(currentSymbol) == tokens[1][currentGroupIndex]
-
-            if currentGroupIndex < len(tokens[1]):
+            if len(groups) != len(tokens[1]):
 
                 return False
 
+        
+
+            for i in range(len(groups)):
+
+                if len(groups[i]) != (tokens[1][i]):
+
+                    return False
+
+            
+
             return True
 
+   
         
 
             
