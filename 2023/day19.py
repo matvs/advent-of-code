@@ -80,7 +80,29 @@ class CompareRule(Rule):
         
     def __repr__(self) -> str:
         return  f' {self.machinePart} {self.comparision} {str(self.value)} -> {self.destination}'
-        
+    
+    
+def generate_all_routes(workflow_name, rule = None, path=[]):
+    """
+    Generate all possible routes in the workflow graph using DFS.
+    """
+    # Add current workflow to the path
+    path.append((workflow_name, rule))
+
+    # Base case: If the current workflow leads to Accept or Reject, return the path
+    if workflow_name in ['A', 'R']:
+        return [path]
+
+    # Recursive case: Explore all destinations from the current workflow
+    all_routes = []
+    current_workflow = workflows[workflow_name]
+    for rule in current_workflow.rules:
+        if (rule.destination, rule) not in path:  # Avoid cycles
+            new_paths = generate_all_routes(rule.destination, rule, path.copy())
+            all_routes.extend(new_paths)
+
+    return all_routes
+
 if __name__ == '__main__':
     with open('/home/matvs/Projects/advent-of-code/2023/day19.input.txt') as f:
         lines = f.read()
@@ -110,4 +132,73 @@ if __name__ == '__main__':
                 sum += value
                 
         print(sum)
+        all_paths = generate_all_routes('in')
+        #print(all_paths)
+        acceptedPaths = list(filter(lambda path: path[-1][0] == 'A', all_paths))
+        #print(list(acceptedPaths))
         
+        
+        allCombinations = []
+        for i,path in enumerate(acceptedPaths):
+            minMax = {'s':[0,4001], 'x':[0,4001], 'm':[0,4001], 'a':[0,4001]}
+            for node in path:
+                rule = node[1]
+                if isinstance(rule, CompareRule):
+                    #print(rule.machinePart, rule.comparision, rule.value)
+                    if rule.comparision == '<': 
+                        if rule.value < minMax[rule.machinePart][1]:
+                            minMax[rule.machinePart][1] = rule.value
+                    elif rule.comparision == '>':
+                        if rule.value > minMax[rule.machinePart][0]:
+                            minMax[rule.machinePart][0] = rule.value
+                    
+            allCombinations.append(minMax)
+            print(minMax) 
+         
+        allCombinationsSum = 0 
+        
+        overlapping = {}
+        
+        def isOverlapping(minmax1, minmax2):
+            for key, value in minmax1.items():
+                minUpper = min(value[0], minmax2[key][0])
+                maxUpper = max(value[0], minmax2[key][0])
+                minLower = min(value[1], minmax2[key][1])
+                maxLower = max(value[1], minmax2[key][1])
+                if not(minUpper <= maxLower and maxUpper <= minLower):
+                    return False
+            return True
+        
+        for i, minMax in enumerate(allCombinations):
+            for y in range(i+1, len(allCombinations)):
+                minMax2 = allCombinations[y]
+                if (isOverlapping(minMax, minMax2)):
+                    #print('Overlapping',minMax, minMax2)
+                    minMaxOverlap = {'s':[max(minMax['s'][0], minMax2['s'][0]), min(minMax['s'][1], minMax2['s'][1])], 
+                              'x':[max(minMax['x'][0], minMax2['x'][0]), min(minMax['x'][1], minMax2['x'][1])], 
+                              'm':[max(minMax['m'][0], minMax2['m'][0]), min(minMax['m'][1], minMax2['m'][1])], 
+                              'a':[max(minMax['a'][0], minMax2['a'][0]), min(minMax['a'][1], minMax2['a'][1])]}
+                    #print(minMaxOverlap)
+                    partialSum = 1
+                    for key, value in minMaxOverlap.items():
+                        partialSum = partialSum * (value[1] - value[0] - 1)
+                    allCombinationsSum -= partialSum
+
+                    #allCombinationsSum -= abs(partialSum1 - partialSum2)     
+                    
+        #print(allCombinations)   
+                    
+        for minMax in allCombinations:
+            partialSum = 1
+            calculation = ''
+            for key, value in minMax.items():
+                partialSum = partialSum * (value[1] - value[0] - 1)
+                calculation += f'({value[1]} - {value[0]} - 1) * '
+            print(partialSum)
+            allCombinationsSum += partialSum
+           
+                        
+                            
+            
+        print(allCombinationsSum)
+   
