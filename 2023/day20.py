@@ -67,6 +67,7 @@ class Part:
         return transitions
     
     def receive(self, pulse, input):
+        self.state = pulse
         return self.propagate(self.state, input)
 
 class FlipFlop(Part):
@@ -79,7 +80,7 @@ class FlipFlop(Part):
             self.state = flip(self.state)
 
     def receive(self,pulse, input = None):
-        print(f'{input} -{pulse}-> {self.label}')
+        #print(f'{input} -{pulse}-> {self.label}')
         if pulse == State.LOW:
             self.updateState(pulse)
             
@@ -107,7 +108,7 @@ class Conjunction(Part):
 
 
     def receive(self,pulse,input = None):
-        print(f'{input} -{pulse}-> {self.label}')
+        #print(f'{input} -{pulse}-> {self.label}')
         self.updateState(pulse, input)
         
         return self.propagate(self.state, input)
@@ -118,14 +119,6 @@ class Conjunction(Part):
 class Broadcast(Part):
     def __init__(self,inputs, outputs, label):
         super().__init__(inputs, outputs, label)
-
-
-
-            
-        
-
-
-
 
 
 with open('/home/matvs/Projects/advent-of-code/2023/day20.input.txt') as f:
