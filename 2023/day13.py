@@ -125,10 +125,10 @@ if __name__ == '__main__':
                 addUniqueSymmetries(allVertivalSymmetries, verticalSymmetries)
                 addUniqueSymmetries(allHorizontalSymmetries, horizontalSymmetries)       
                 
-            print(calculateScore(allVertivalSymmetries, allHorizontalSymmetries))
+            return allVertivalSymmetries, allHorizontalSymmetries
             
-            
-        findNewSymmetriesAftreOneChange(grids)
+        allVertivalSymmetries, allHorizontalSymmetries = findNewSymmetriesAftreOneChange(grids)    
+        print(calculateScore(allVertivalSymmetries, allHorizontalSymmetries))
                     
                     
             
